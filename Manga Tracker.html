@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Manga Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#efeeea;--card:#fbfaf7;--tx:#141a26;--mu:#6a7080;--bd:#dcd9d0;--ok:#1f7a5c;--mid:#9a7430;--bar:#e2dfd6;--in:#f5f3ee;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a0e15;--card:#111723;--tx:#ece7dc;--mu:#8a91a1;--bd:#212a3a;--ok:#46b894;--mid:#cfae6b;--bar:#212a3a;--in:#0a0e15;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0a0e15;--card:#111723;--tx:#ece7dc;--mu:#8a91a1;--bd:#212a3a;--ok:#46b894;--mid:#cfae6b;--bar:#212a3a;--in:#0a0e15;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:400 15px/1.45 "Zen Kaku Gothic New",system-ui,sans-serif}
+main{max-width:780px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:26px;font-weight:700;margin:4px 0 14px;letter-spacing:-.01em}
+.stats{display:flex;gap:22px;flex-wrap:wrap;margin-bottom:18px}.stats div{font-size:13px;color:var(--mu)}.stats b{display:block;font-size:24px;color:var(--tx);font-variant-numeric:tabular-nums}
+.bar-c{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+input,select,button{font:inherit;color:var(--tx);background:var(--in);border:1px solid var(--bd);border-radius:6px;padding:7px 10px}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--mid);outline-offset:1px}
+#q{flex:1 1 180px}button{cursor:pointer}button:hover{border-color:var(--mu)}
+details{background:var(--card);border:1px solid var(--bd);border-radius:6px;margin-bottom:14px;padding:10px 12px}summary{cursor:pointer;font-weight:500}
+.add{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.add #nt{flex:1 1 200px}.add input[type=number]{width:90px}
+.r{background:var(--card);border:1px solid var(--bd);border-left:4px solid var(--mu);border-radius:6px;padding:10px 12px;margin-bottom:8px}
+.r.ok{border-left-color:var(--ok)}.r.mid{border-left-color:var(--mid)}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}.top b{font-weight:500;overflow-wrap:anywhere}
+.mu{color:var(--mu);font-size:13px;white-space:nowrap}.ok .tag{color:var(--ok)}
+.bar{height:4px;background:var(--bar);border-radius:2px;margin:8px 0}.bar i{display:block;height:100%;background:var(--mu);border-radius:2px}.ok .bar i{background:var(--ok)}.mid .bar i{background:var(--mid)}
+.ctl{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.ctl input{width:78px;padding:5px 8px}.ctl button{padding:5px 12px}.ctl .del{margin-left:auto;color:var(--mu)}.ctl .del.arm{color:#d6453d;border-color:#d6453d}
+@media(prefers-reduced-motion:no-preference){.bar i{transition:width .25s}}
+</style></head><body><main>
+<h1>Manga Tracker</h1>
+<div class="stats" id="st"></div>
+<details><summary>Add a title</summary><div class="add"><input id="nt" placeholder="Title"><input id="nc" type="number" step="any" placeholder="Read"><input id="nd" type="number" step="any" placeholder="Total"><button id="add">Add title</button></div></details>
+<div class="bar-c"><input id="q" type="search" placeholder="Search titles" aria-label="Search titles"><select id="f" aria-label="Filter"><option value="all">All</option><option value="behind">Behind</option><option value="done">Caught up</option></select><select id="s" aria-label="Sort"><option value="u">Recently updated</option><option value="t">Title A–Z</option><option value="p">Most read</option><option value="l">Most chapters left</option></select></div>
+<div id="list"></div>
+</main><script>
+const SEED=[["Reverend Insanity (2025)",1,34],["Chronicles of the Demon Faction",198,198],["Return of the War God",162,170.5],["A Big Shot Actually",4,609],["Martial Wild West",18,129],["Absolute Regression",128,128],["Nano Machine",339,339],["Reincarnated Murim Lord",148,148],["Best Teacher Baek",169,169],["Gwanjeon - Lee Kang-Jin",6,265],["Absolute Sword Sense",210,210],["The Reborn Ranker Chronicles",201,201],["Heavenly Demon Tavern",3,80],["Sunyu of the Shadowless",158,158],["Father, Unrivaled",296.5,296.5],["The Grand Mudang Saga",174,174],["Spirit Hunter",114,115],["Heavenly Demon Reborn!",252,252],["The Frostbound Warrior",49,49],["Cheonhwa Archive's Young Master",182,182],["Legend of Sayu",256,256],["Demonic Master of Mount Kunlun",50,51],["Return of the Blossoming Blade",189,189],["Tang Clan Legend",63,78],["Heavenly Moon",1,274],["On the Way to Meet Mom",38,55],["Childhood Friend of the Zenith",1,184],["The Nine Heavens Swordmaster",136,153],["The Beginning After the End",258,258],["Her Summon",4,117],["Exorcism Chronicles",2,27],["The Reaper (INKYO)",135,135],["Hunter x Hunter (Official Colored)",418,418],["Chronicles of a Doomed Prodigy",96,100],["The Knight Only Lives Today",1,112.7],["Chonaehyomno",196,196],["Second Life Ranker",1,238],["Legend of the Reincarnated Demon God",58,58],["Myst, Might, Mayhem",125,125],["Legend of an Asura - The Poison Dragon",133,133],["From Water Monkey to Godhood",95,95],["Damned Demonic Swords",1,59],["Absolute Reign",117,117],["Leviathan (LEE Gyuntak)",216,228.5],["Return of the Mad Demon",218,221],["Kaiju 8-gou",129.5,129.5],["One-Punch Man",211,264],["Tsue to Tsurugi no Wistoria",50,67],["Black Clover",392.5,392.5],["The Second Eunuch Regains His Manhood",101,101],["The Genius Swordsman of Mount Hua",78,78],["Omniscient Reader's Viewpoint",29,311],["The Demonic Warrior",108,108],["Existence (Kwang Jin)",72,72],["Murim RPG Simulation",47,195],["The Worst Generation",63,63],["One Piece",1877,1191],["The Stormy Inn",1,145],["The Edgeless Sword From the Village",18,59],["Ordeal",3,152],["Bones",6,6.5],["Fist Demon of Mount Hua",182,182],["The Roguish Guard in a Medieval Fantasy",46,46],["Gosu",232,232],["The Undefeatable Swordsman",308,308],["One Coin Clear",8,78],["Blue Lock",178,358],["Volcanic Age",22,383],["Log-In Murim",67,250],["SSS-Class Revival Hunter",26,151.5],["Kagurabachi",9,129],["Yeokdaegeup Yeongji Seolgyesa",116,223.9],["God of High School",128,578],["Legend of the Northern Blade",202.2,202.2],["The Horizon",21,21],["Black and White Martial Emperor",76,76],["Emperor's Sword",47,132],["World's Best Gonryun Tavern",139,139],["The Legend of Enxue",74,74],["Rebirth of the Divine Demon",62,62],["World's Greatest Senior Disciple",211,211],["Doctor, Live Again",252,252],["Red Dragon Emperor",28,28],["Absolute Martial Arts",14,152],["A Regressor's Tale of Cultivation",39,39],["Chronicles of the Lazy Sovereign",73,73],["Reincarnation of the Fist King",78,78],["Eunhae Merchant Guild's Youngest Son",19,85],["The Heavenly Demon Wants a Quiet Life",15,104],["Records of the Swordsman Scholar",1,221.5],["The Unruly Immortals",3,99],["God of Martial Arts",1.2,12339],["Reincarnated as an Unruly Heir",163,199.5],["The Regressed Mercenary Has a Plan",13,115],["Disciple of the Three Kings",3,47]],K="mt1",$=s=>document.querySelector(s);
+let items=[];try{items=JSON.parse(localStorage.getItem(K)||"null")||[]}catch(e){}
+if(!items.length)items=SEED.map((r,i)=>({id:i+1,t:r[0],c:r[1],d:r[2],u:SEED.length-i}));
+let nid=Math.max(0,...items.map(i=>i.id))+1;
+const save=()=>{try{localStorage.setItem(K,JSON.stringify(items))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pct=i=>i.d>0?Math.min(100,Math.round(i.c/i.d*100)):0;
+const num=v=>{const n=parseFloat(v);return isNaN(n)||n<0?0:n};
+function render(){
+const q=$("#q").value.toLowerCase(),f=$("#f").value,s=$("#s").value;
+const v=items.filter(i=>i.t.toLowerCase().includes(q)&&(f=="all"||(f=="done")==(i.c>=i.d)));
+v.sort((a,b)=>s=="t"?a.t.localeCompare(b.t):s=="p"?pct(b)-pct(a):s=="l"?(b.d-b.c)-(a.d-a.c):b.u-a.u);
+const done=items.filter(i=>i.c>=i.d).length,avg=items.length?Math.round(items.reduce((a,i)=>a+pct(i),0)/items.length):0;
+$("#st").innerHTML=`<div><b>${items.length}</b>titles</div><div><b>${done}</b>caught up</div><div><b>${items.length-done}</b>behind</div><div><b>${avg}%</b>average read</div>`;
+$("#list").innerHTML=v.map(i=>{const ok=i.c>=i.d;return `<div class="r ${ok?"ok":i.c>1?"mid":""}" data-id="${i.id}"><div class="top"><b>${esc(i.t)}</b><span class="mu tag">${ok?"Caught up":(Math.round((i.d-i.c)*10)/10)+" left"}</span></div><div class="bar"><i style="width:${pct(i)}%"></i></div><div class="ctl"><button data-a="m" aria-label="Back one chapter">−1</button><input type="number" step="any" data-k="c" value="${i.c}" aria-label="Last chapter read"><span class="mu">of</span><input type="number" step="any" data-k="d" value="${i.d}" aria-label="Total chapters"><button data-a="p">+1</button><button class="del" data-a="x">Remove</button></div></div>`}).join("")||'<p class="mu">No titles match. Clear the search or add a new title.</p>'}
+const get=el=>items.find(i=>i.id==el.closest(".r").dataset.id);
+$("#list").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const i=get(b),a=b.dataset.a;
+if(a=="x"){if(b.classList.contains("arm")){items=items.filter(x=>x!==i)}else{b.classList.add("arm");b.textContent="Confirm remove";setTimeout(()=>{b.classList.remove("arm");b.textContent="Remove"},3000);return}}
+else{i.c=Math.max(0,i.c+(a=="p"?1:-1));if(a=="p"&&i.c>i.d)i.d=i.c;i.u=Date.now()}
+save();render()});
+$("#list").addEventListener("change",e=>{const k=e.target.dataset.k;if(!k)return;const i=get(e.target);i[k]=num(e.target.value);i.u=Date.now();save();render()});
+["q","f","s"].forEach(id=>$("#"+id).addEventListener("input",render));
+$("#add").addEventListener("click",()=>{const t=$("#nt").value.trim();if(!t)return;const c=num($("#nc").value);items.push({id:nid++,t,c,d:Math.max(c,num($("#nd").value)),u:Date.now()});["nt","nc","nd"].forEach(x=>$("#"+x).value="");save();render()});
+render();
+</script></body></html>
